@@ -1,0 +1,112 @@
+<script>
+
+    const __audio_context = new (window.AudioContext || window.webkitAudioContext)();
+    var __audio_source_node = null;
+
+
+    function fetch_song(audio_url, audio_name){ 
+        fetch(audio_url)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => __audio_context.decodeAudioData(arrayBuffer))
+            .then(audioBuffer => {
+
+                let new_song = new Song(audio_url, audio_name, "artist", audioBuffer)
+                __library.addSong(new_song)
+
+                console.log("fetched song ", new_song)
+                html_show_song(new_song)
+            })
+            .catch(error => {
+                console.error('Error playing audio:', error);
+            }); 
+
+    }
+
+    function play_song() {
+
+        console.log('playing playin master buffer ')
+
+        if (get_master_buffer().length > 0) {
+
+            __audio_source_node = __audio_context.createBufferSource();
+            __audio_source_node.buffer = get_master_buffer();
+            __audio_source_node.connect(__audio_context.destination);
+
+            const offset = __paused_at;
+            __started_at = __audio_context.currentTime - offset;
+            __audio_source_node.start(0, offset);
+
+        }else{
+            console.log('song not found')
+        }
+    }
+
+    function pause_song(){
+        if (!__audio_source_node) return;
+
+        __paused_at  = __audio_context.currentTime - __started_at;
+        
+        console.log('pausing')
+        __audio_source_node.stop(0);
+        __audio_source_node.disconnect();
+        __audio_source_node = null;
+    }
+
+    function toggle_play_pause(){
+        if (get_master_buffer().length == 0) return; 
+
+        if (get_active_audio() == null) set_active_audio(0);
+
+        if(__is_playing){
+            pause_song();
+            html_pause();
+        }else{
+            play_song();
+            html_play();
+            requestAnimationFrame(show_progress_bar);
+        }
+        __is_playing = !__is_playing
+    }
+
+    function getCurrentTime() {
+        if (__is_playing) {
+            return __audio_context.currentTime - __started_at;
+        } else {
+            return __paused_at;
+        }
+    }
+
+    function show_progress_bar(){
+
+        var slider = document.querySelector('.audio_seeker');
+
+        let ct = getCurrentTime() ;
+
+        if ( ct > __play_rack_durations[__active_audio] ){
+            if ( __active_audio == __play_rack.length-1 ){
+                // last obj
+                set_active_audio(0) 
+                __is_playing = false;
+                html_pause();
+                __paused_at = 0;
+            }else{
+                set_active_audio(__active_audio+1)
+            }
+        }
+
+        if (__is_playing && ! __is_dragging) {
+            let current_start = 0;
+            if (__active_audio > 0) {
+                current_start = __play_rack_durations[__active_audio-1];
+            }
+            slider.value = getCurrentTime() - current_start;
+        }
+        if (__is_playing) {
+            requestAnimationFrame(show_progress_bar);
+        }
+
+    }
+
+
+
+</script>

@@ -1,0 +1,91 @@
+<script>
+
+        u('.search-bowl').on('submit', (e)=>{
+            e.preventDefault();
+            let title = document.querySelector('.search-input').value.trim(); 
+
+            fetch("https://api.cratehackers.com/magicplaylist/magicPlaylistToken")
+                            .then(response => response.text())
+                            .then(bearer => {
+                                
+                                fetch("https://api.spotify.com/v1/search?q="+title+"&type=track&limit=5",{
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': "Bearer "+bearer,
+                                        },
+                                    })
+                                    .then(response => response.json()) // Parse JSON body
+                                    .then(jsonData => {  
+
+                                        let items = jsonData.tracks.items;
+                                        if (typeof items === "undefined") {
+                                            alert("error finding song") 
+                                            return
+                                        }
+
+                                        u('.spotify_results').html("")
+                                        u('.spotify_results').removeClass('hide') 
+                                        u('.close-button').removeClass('hide')
+
+                                        for ( let item of items ){ 
+
+                                            console.log(item)
+
+                                            let s_name = item.name.replace(/[()'"]/g, '');
+                                            let s_url = item.external_urls.spotify;
+                                            let s_img = item.album.images[item.album.images.length-1].url;
+
+                                            u('.spotify_results').append(`
+                                                <div class="spotify_result" onclick='add_notif("loading ${s_name}"); handleSpotifyMusic("${s_url}")' >
+                                                    <img src="${s_img}" alt="">
+                                                    <p>${s_name}</p>
+                                                </div>
+                                            `)
+
+                                        }
+
+                                    })
+                                    .catch(error => {
+                                        console.error('Fetch error:', error);
+                                    });
+
+
+
+
+                            })
+                            .catch(error => {
+                                console.error('bearer gen error :', error);
+                            });
+
+            
+            
+
+        })
+
+        function handleSpotifyMusic(url){
+
+            let sj_data = {
+                type :"song",
+                url : url,
+            }
+
+            fetch("https://spotify.downloaderize.com/wp-json/spotify-downloader/v1/fetch", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sj_data)
+            })
+            .then(response => response.json())
+            .then(first_response => { 
+                first_response = first_response.data; 
+                fetch_song(first_response.downloadLink, first_response.title)
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                return null;
+            });
+        }
+
+    </script>

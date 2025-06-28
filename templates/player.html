@@ -1,0 +1,121 @@
+<style>
+    footer {
+        width : 100%;
+        padding : 1em 0;
+        background : var(--b0);
+        color : var(--w3);
+
+        display : flex;
+        flex-direction : column;
+        justify-content: center;
+        align-items: center;
+        gap : 1em;
+
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 101;
+
+    }
+
+    .play_pause_button {
+        padding : 1em ;
+        border-radius: 50%;
+        border : none;
+        outline : none;
+        cursor : pointer;
+        
+        display : flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .play_pause_button img {
+        width : 1em;
+    }
+
+    .audio_seeker {
+        /* background : red;  */
+
+        margin-top : -2em;
+
+        -webkit-appearance: none;  /* Override default CSS styles */
+        appearance: none;
+        width: 100%; /* Full-width */
+        height: .5em; /* Specified height */
+        outline: none; /* Remove outline */
+        opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+        -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+        transition: opacity .2s;
+
+        overflow : hidden;
+    }
+
+    /* Mouse-over effects */
+    .audio_seeker:hover {
+        opacity: 1; /* Fully shown on mouse-over */
+    }
+
+    /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+    .audio_seeker::-webkit-slider-thumb {
+        -webkit-appearance: none; /* Override default look */
+        appearance: none;
+        width: 3em; /* Set a specific slider handle width */
+        height: .4em; /* Slider handle height */
+        background: var(--w4); /* Green background */
+        cursor: pointer; /* Cursor on hover */
+        border-radius: 10em;
+    }
+
+    .audio_seeker::-moz-range-thumb {
+        width: 3em; /* Set a specific slider handle width */
+        height: .4em; /* Slider handle height */
+        background: var(--w4); /* Green background */
+        cursor: pointer; /* Cursor on hover */
+        border-radius: 10em;
+    }
+
+
+</style> 
+<footer>
+    <input type="range" class="audio_seeker" max=100 min=0 value=0>
+
+    <p class="active_audio_title">nothing</p>
+
+    <div class="audio_controls">
+        <button onclick="toggle_play_pause()" class="play_pause_button">
+            <img src="https://static.thenounproject.com/png/play-icon-7833965-512.png" alt="" class="play_icon">
+            <img src="https://static.thenounproject.com/png/pause-icon-3646352-512.png" alt="" class="pause_icon hide">
+        </button>
+    </div>
+</footer>
+<script>
+    function html_play(){
+        u('.play_icon').addClass('hide')
+        u('.pause_icon').removeClass('hide')
+    }
+    function html_pause(){
+        u('.play_icon').removeClass('hide')
+        u('.pause_icon').addClass('hide')
+    }
+    u('.audio_seeker').on('mousedown', ()=>{
+        __is_dragging = true;
+    })
+    u('.audio_seeker').on('mouseup', ()=>{
+        __is_dragging = false;
+    })
+    u('.audio_seeker').on('input', ()=>{
+        let to = document.querySelector('.audio_seeker').value;
+
+        let absolute_to = to;
+        if ( __active_audio > 0 ) {
+            absolute_to = parseInt(to) + __play_rack_durations[__active_audio-1];
+        } 
+
+        __paused_at = absolute_to;
+        __started_at = __audio_context.currentTime - __paused_at; 
+        
+        toggle_play_pause();
+        toggle_play_pause();
+
+    })
+</script>

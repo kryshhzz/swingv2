@@ -1,0 +1,115 @@
+<script>
+    
+    class Song {
+        
+        constructor(url, title, artist, buffer=null){
+            this.id = this.generate_id(),
+            this.url = url,
+            this.title = title,
+            this.artist = artist,
+            this.buffer = buffer
+        }
+        
+        generate_id(){
+            return Math.random().toString(36).substring(2, 15)
+        }
+
+    }
+
+    class library {
+        constructor(){
+            this.songs = {}
+        }
+        addSong(song){
+            this.songs[song.id] = song;
+            console.log("Added song into library ", song)
+            
+            append_to_play_rack(song.id)
+        }
+        getSong(id){
+            return this.songs[id]
+        }
+    }
+
+    var __paused_at = null
+    var __is_playing = false;
+    var __started_at = null;
+    var __is_dragging = false;
+
+    var __active_audio = null;
+    var __library = new library();
+
+    var __play_rack = []
+    var __play_rack_durations = []
+
+    function append_to_play_rack(id){
+        __play_rack.push(id);
+        let prefix_sum = 0
+        if (__play_rack_durations.length > 0){
+            prefix_sum = __play_rack_durations[__play_rack_durations.length-1]
+        }
+        console.log(prefix_sum)
+        prefix_sum += __library.getSong(id).buffer.duration;
+        __play_rack_durations.push(prefix_sum);
+        generate_master_buffer();
+    }
+
+
+    var __master_buffer = null;
+
+    function generate_master_buffer(){
+        __master_buffer = null;
+
+        for ( let audio_id of __play_rack ) {
+            let song = __library.getSong(audio_id)
+
+            if (__master_buffer == null) {
+                __master_buffer = song.buffer;
+                continue;
+            }
+
+            buffer1 = __master_buffer;
+            buffer2 = song.buffer;
+
+            const numberOfChannels = Math.max(buffer1.numberOfChannels, buffer2.numberOfChannels);
+            const length = buffer1.length + buffer2.length;
+            const sampleRate = buffer1.sampleRate; // assuming both have the same sampleRate
+
+            const output = __audio_context.createBuffer(numberOfChannels, length, sampleRate);
+
+            for (let channel = 0; channel < numberOfChannels; channel++) {
+                const outputData = output.getChannelData(channel);
+                const data1 = buffer1.numberOfChannels > channel ? buffer1.getChannelData(channel) : new Float32Array(buffer1.length);
+                const data2 = buffer2.numberOfChannels > channel ? buffer2.getChannelData(channel) : new Float32Array(buffer2.length);
+
+                outputData.set(data1, 0);
+                outputData.set(data2, buffer1.length);
+            }
+
+            __master_buffer = output;
+        }
+    }
+    function get_master_buffer(){
+        return __master_buffer
+    }
+
+    function set_active_audio(song_index){
+        __active_audio = song_index;
+        let __active_song = __library.getSong(__play_rack[__active_audio])
+        u('.active_audio_title').html(__active_song.title); 
+        u('.play_rack_cont_active').removeClass('play_rack_cont_active')
+        u('.audio_id_'+__active_song.id).addClass('play_rack_cont_active')  
+
+        var slider = document.querySelector('.audio_seeker');
+        slider.value = 0;
+        slider.max = __active_song.buffer.duration;
+
+        __paused_at = __active_audio == 0 ? 0 : __play_rack_durations[__active_audio-1];
+        __started_at = __audio_context.currentTime - __paused_at;
+    }
+    function get_active_audio(song){
+        return __active_audio ;
+    }
+
+
+</script>

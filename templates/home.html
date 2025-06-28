@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+  <style>
+    .search-bowl {
+      width : 100%;
+      background : var(--b0);
+      padding : .5em .5em .5em 1.75em;
+      border-radius: 10em;
+
+      display : grid;
+      grid-template-columns: 1fr 5em;
+      place-items : center end;
+      gap : 1em;
+    }
+    .search-bowl .search-input {
+      background : transparent;
+      border : none;
+      outline : none;
+      color : var(--w1);
+      width : 100%;
+      font-family: inherit;
+      font-size: 1em;
+    }
+    .search-bowl button {
+      width : 100%;
+      background : var(--w0);
+      color : var(--b0);
+      outline : none;
+      border : none;
+      padding: .7em;
+      border-radius: 10em;
+      cursor : pointer;
+
+      display : flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .search-bowl button img {
+      width : 1.25em;
+      margin-left : .1em;
+    } 
+
+
+    .play_rack_bowl {
+      width : 100%;
+
+      display : flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      gap : .75em;
+
+      padding : 3em 1em 1em 1em;
+    }
+    .play_rack_bowl h2 {
+      color : var(--b0);
+    }
+    .play_rack_cont {
+      width : 100%;
+      background : var(--w1);
+      border-radius: .5em;
+      padding : 1em;
+      cursor : pointer;
+    }
+    .play_rack_cont_active {
+      color : var(--base);
+    }
+
+    .spotify_results {
+        width : 100%;
+        border-radius : 1em;
+        margin : 1em auto;
+        padding : 1.5em;
+        background : var(--w1);
+
+        display : flex;
+        flex-direction: column;
+        justify-content : flex-start;
+        align-items: center;
+        gap : 1em;
+    }
+    .spotify_result {
+        width : 100%;
+        display : flex;
+        justify-content : flex-start;
+        align-items: center;
+        gap :1em; 
+        cursor : pointer;
+    }
+    .spotify_result img {
+        width : 2em;
+        border-radius: .2em;
+        filter : grayscale(100%);
+    }
+    .spotify_result p {
+        font-size : .9em;
+        color : var(--wt-60);
+        width : 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: left;
+    }
+
+    .close-button {
+      border: none;
+      outline: none;
+      background: var(--w2);
+      padding: .5em 1.5em;
+      border-radius: 10em;
+      font-family: inherit;
+    }
+    
+    
+  </style>
+  <div class="main-bowl">
+
+    <form class="search-bowl stiff">
+      <input type="text" class="search-input" placeholder="Search for it" required autocomplete="off" autocapitalize="">
+      <button><img src="https://static.thenounproject.com/png/chevron-right-icon-7465671-512.png" alt=""></button>
+    </form> 
+
+    <div class="spotify_results hide stiff"> 
+
+    </div>
+    <center>
+      <button onclick="u('.spotify_results').addClass('hide'); this.classList.add('hide');" class="close-button hide">close</button>
+    </center>
+
+    <div class="play_rack_bowl stiff">
+      <h2>audio rack</h2>
+    </div>
+
+  </div>
+
+
+  <script>
+
+    function html_show_song(song){ 
+      let count =  Object.keys(__library.songs).length-1;
+
+        u('.play_rack_bowl').append(`
+            <div class="play_rack_cont audio_id_${song.id}" onclick="set_active_audio(${count}); toggle_play_pause()">
+              <p>${song.title}</p>
+            </div>
+        `)
+    }
+  </script>
+
+
+{% endblock %}
