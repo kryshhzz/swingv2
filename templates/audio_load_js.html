@@ -97,8 +97,7 @@
             .then(first_response => {  
                 if (first_response.success == false || first_response.success == 'false') {
                     add_notif('server lag, so retrying...')
-                    handleSpotifyMusic(url, retry_count);
-                    return null;
+                    setTimeout(() => handleSpotifyMusic(url, retry_count + 1), 500);
                 }else{
                     first_response = first_response.data;  
                     fetch_song(first_response.downloadLink, first_response.title)
