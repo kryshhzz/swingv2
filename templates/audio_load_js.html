@@ -63,7 +63,13 @@
 
         })
 
-        function handleSpotifyMusic(url){
+        function handleSpotifyMusic(url, retry_count=0){
+
+            if (retry_count == 5) {
+                add_notif("ERROR COULD NOT LOAD SONG")
+                return;
+            }
+            retry_count += 1;
 
             let sj_data = {
                 type :"song",
@@ -77,10 +83,26 @@
                 },
                 body: JSON.stringify(sj_data)
             })
-            .then(response => response.json())
-            .then(first_response => { 
-                first_response = first_response.data; 
-                fetch_song(first_response.downloadLink, first_response.title)
+            .then(response => {
+                if (response.status >= 400) {
+                    // HTTP error (non-200)
+                    console.log(response.status)
+                    add_notif('error, so retrying...')
+                    handleSpotifyMusic(url, retry_count);
+
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(first_response => {  
+                if (first_response.success == false || first_response.success == 'false') {
+                    add_notif('server lag, so retrying...')
+                    handleSpotifyMusic(url, retry_count);
+                    return null;
+                }else{
+                    first_response = first_response.data;  
+                    fetch_song(first_response.downloadLink, first_response.title)
+                }
             })
             .catch(error => {
                 console.error('Error:', error);

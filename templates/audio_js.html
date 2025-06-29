@@ -5,6 +5,7 @@
 
 
     function fetch_song(audio_url, audio_name){ 
+        add_notif("Fetching "+audio_name)
         fetch(audio_url)
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => __audio_context.decodeAudioData(arrayBuffer))
