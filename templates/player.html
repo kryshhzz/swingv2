@@ -43,16 +43,9 @@
         width: 100%; /* Full-width */
         height: .5em; /* Specified height */
         outline: none; /* Remove outline */
-        opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-        -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-        transition: opacity .2s;
+        opacity: 1; /* Set transparency (for mouse-over effects on hover) */
 
         overflow : hidden;
-    }
-
-    /* Mouse-over effects */
-    .audio_seeker:hover {
-        opacity: 1; /* Fully shown on mouse-over */
     }
 
     /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
@@ -61,7 +54,7 @@
         appearance: none;
         width: 3em; /* Set a specific slider handle width */
         height: .4em; /* Slider handle height */
-        background: var(--w4); /* Green background */
+        background: var(--base); /* Green background */
         cursor: pointer; /* Cursor on hover */
         border-radius: 10em;
     }
@@ -69,7 +62,7 @@
     .audio_seeker::-moz-range-thumb {
         width: 3em; /* Set a specific slider handle width */
         height: .4em; /* Slider handle height */
-        background: var(--w4); /* Green background */
+        background: var(--base); /* Green background */
         cursor: pointer; /* Cursor on hover */
         border-radius: 10em;
     }
