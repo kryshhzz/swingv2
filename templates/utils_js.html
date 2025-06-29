@@ -51,45 +51,43 @@
         console.log(prefix_sum)
         prefix_sum += __library.getSong(id).buffer.duration;
         __play_rack_durations.push(prefix_sum);
-        generate_master_buffer();
+        generate_master_buffer(id);
     }
 
 
     var __master_buffer = null;
 
-    function generate_master_buffer(){
-        __master_buffer = null;
+    function generate_master_buffer(audio_id){
 
-        for ( let audio_id of __play_rack ) {
-            let song = __library.getSong(audio_id)
+        let song = __library.getSong(audio_id)
 
-            if (__master_buffer == null) {
-                __master_buffer = song.buffer;
-                continue;
-            }
-
-            buffer1 = __master_buffer;
-            buffer2 = song.buffer;
-
-            const numberOfChannels = Math.max(buffer1.numberOfChannels, buffer2.numberOfChannels);
-            const length = buffer1.length + buffer2.length;
-            const sampleRate = buffer1.sampleRate; // assuming both have the same sampleRate
-
-            const output = __audio_context.createBuffer(numberOfChannels, length, sampleRate);
-
-            for (let channel = 0; channel < numberOfChannels; channel++) {
-                const outputData = output.getChannelData(channel);
-                const data1 = buffer1.numberOfChannels > channel ? buffer1.getChannelData(channel) : new Float32Array(buffer1.length);
-                const data2 = buffer2.numberOfChannels > channel ? buffer2.getChannelData(channel) : new Float32Array(buffer2.length);
-
-                outputData.set(data1, 0);
-                outputData.set(data2, buffer1.length);
-            }
-
-            __master_buffer = output; 
-            toggle_play_pause();
-            toggle_play_pause();
+        if (__master_buffer == null) {
+            __master_buffer = song.buffer;
+            return;
         }
+
+        buffer1 = __master_buffer;
+        buffer2 = song.buffer;
+
+        const numberOfChannels = Math.max(buffer1.numberOfChannels, buffer2.numberOfChannels);
+        const length = buffer1.length + buffer2.length;
+        const sampleRate = buffer1.sampleRate; // assuming both have the same sampleRate
+
+        const output = __audio_context.createBuffer(numberOfChannels, length, sampleRate);
+
+        for (let channel = 0; channel < numberOfChannels; channel++) {
+            const outputData = output.getChannelData(channel);
+            const data1 = buffer1.numberOfChannels > channel ? buffer1.getChannelData(channel) : new Float32Array(buffer1.length);
+            const data2 = buffer2.numberOfChannels > channel ? buffer2.getChannelData(channel) : new Float32Array(buffer2.length);
+
+            outputData.set(data1, 0);
+            outputData.set(data2, buffer1.length);
+        }
+
+        __master_buffer = output; 
+        toggle_play_pause();
+        toggle_play_pause();
+    
     }
     function get_master_buffer(){
         return __master_buffer
