@@ -105,7 +105,6 @@
         slider.max = __active_song.buffer.duration;
 
         __paused_at = __active_audio == 0 ? 0 : __play_rack_durations[__active_audio-1];
-        __started_at = __audio_context.currentTime - __paused_at;
     }
     function get_active_audio(song){
         return __active_audio ;
